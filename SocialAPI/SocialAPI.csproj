@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Social.Application\Social.Application.csproj" />
     <ProjectReference Include="..\Social.DataAccess\Social.DataAccess.csproj" />
     <ProjectReference Include="..\Social.Domain\Social.Domain.csproj" />
   </ItemGroup>

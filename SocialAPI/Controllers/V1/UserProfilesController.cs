@@ -2,7 +2,10 @@
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Social.Application.UserProfiles.Commands;
+using Social.Application.UserProfiles.Queries;
 using SocialAPI.Contracts.UserProfile.Requests;
+using SocialAPI.Contracts.UserProfile.Responses;
 
 namespace SocialAPI.Controllers.V1
 {
@@ -20,15 +23,48 @@ namespace SocialAPI.Controllers.V1
         }
 
         [HttpGet]
-        public IActionResult GetAllProfiles()
+        public async Task<IActionResult> GetAllProfiles()
         {
-            return (IActionResult)Task.FromResult(Ok());
+            var query = new GetAllUserProfiles();
+            var response = await _mediator.Send(query);
+            var profiles = _mapper.Map<List<UserProfileResponse>>(response);
+
+            return Ok(profiles);
+
         }
 
         [HttpPost]
-        public IActionResult CreateUserProfile([FromBody]UserProfileCreate profile)
+        public async Task<IActionResult> CreateUserProfile([FromBody]UserProfileCreateUpdate profile)
         {
-            return (IActionResult)Task.FromResult(Ok());
+            var command = _mapper.Map<CreateUserCommand>(profile);
+            var response = await _mediator.Send(command);
+            var userProfile = _mapper.Map<UserProfileResponse>(response);
+
+            return CreatedAtAction(nameof(GetUserProfileById), new {id = response.UserProfileId}, userProfile);
         }
+
+        [Route(ApiRoute.UserProfiles.IdRoute)]
+        [HttpGet]
+        public async Task<IActionResult> GetUserProfileById(string id)
+        {
+            var query = new GetUserProfileById { UserprofileId = Guid.Parse(id) };
+            var response = await _mediator.Send(query);
+            var userProfile = _mapper.Map<UserProfileResponse>(response);
+            return Ok();
+        }
+
+        [HttpPatch]
+        [Route(ApiRoute.UserProfiles.IdRoute)]
+        public async Task<IActionResult> UpdateUserProfile(string id, UserProfileResponse userProfile)
+        {
+            var command = _mapper.Map<UpdateUserProfileBasicInfoCommand>(userProfile);
+            command.UserProfileId = Guid.Parse(id);
+            var response = await _mediator.Send(command);
+
+            return NoContent();
+        }
+
+
+
     }
 }
