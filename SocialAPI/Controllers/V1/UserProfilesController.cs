@@ -55,7 +55,7 @@ namespace SocialAPI.Controllers.V1
 
         [HttpPatch]
         [Route(ApiRoute.UserProfiles.IdRoute)]
-        public async Task<IActionResult> UpdateUserProfile(string id, UserProfileResponse userProfile)
+        public async Task<IActionResult> UpdateUserProfile(string id, UserProfileCreateUpdate userProfile)
         {
             var command = _mapper.Map<UpdateUserProfileBasicInfoCommand>(userProfile);
             command.UserProfileId = Guid.Parse(id);
@@ -63,6 +63,17 @@ namespace SocialAPI.Controllers.V1
 
             return NoContent();
         }
+
+        [HttpDelete]
+        [Route(ApiRoute.UserProfiles.IdRoute)]
+        public async Task<IActionResult> DeleteUserProfile(string id)
+        {
+            var command = new DeleteUserProfile() { UserProfileId = Guid.Parse(id) };
+            var response = await _mediator.Send(command);
+
+            return NoContent();
+
+         }
 
 
 
